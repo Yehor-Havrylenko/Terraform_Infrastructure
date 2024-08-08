@@ -29,8 +29,8 @@ cat <<EOF > terraform.tfvars.json
 {
   "api_endpoints": $(jq .api_endpoints.value $PATH_OUTPUT),
   "custom_domain_names": $(jq .custom_domain_names.value $PATH_OUTPUT),
-  "certificate_arn_us_east_1": "arn:aws:acm:us-east-1:000706442555:certificate/2aa1d229-e1c9-40d6-933f-f0babcad6879",
-  "route53_zone_id": "Z0778729350JC42N306XN"
+  "certificate_arn_us_east_1": "arn:aws:acm:us-east-1:",
+  "route53_zone_id": ""
 }
 EOF
 
