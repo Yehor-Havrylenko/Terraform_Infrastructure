@@ -1,0 +1,4 @@
+bucket = "bucket-terraform-backend"
+key = "folder/front-{your-service-name}.state"
+region = "eu-central-1"
+dynamodb_table = "table-terraform-lock"
