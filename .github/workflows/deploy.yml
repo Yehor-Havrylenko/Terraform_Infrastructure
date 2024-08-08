@@ -1,0 +1,58 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_DEFAULT_REGION: eu-central-1
+      DEPLOYMENT_ROLE: //aws iam role
+      ENV_PREFIX: dev
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up AWS CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl jq python3 python3-pip
+          pip3 install awscli
+
+      - name: Assume Deployment Role
+        id: assume_role
+        run: |
+          credentials=$(aws sts assume-role --role-arn $DEPLOYMENT_ROLE --role-session-name github-deployment --query "Credentials.[AccessKeyId,SecretAccessKey,SessionToken]" --output json)
+          echo "::set-output name=AWS_ACCESS_KEY_ID::$(echo $credentials | jq -r '.[0]')"
+          echo "::set-output name=AWS_SECRET_ACCESS_KEY::$(echo $credentials | jq -r '.[1]')"
+          echo "::set-output name=AWS_SESSION_TOKEN::$(echo $credentials | jq -r '.[2]')"
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ steps.assume_role.outputs.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ steps.assume_role.outputs.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ steps.assume_role.outputs.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.2.9
+
+      - name: Run Deployment Script
+        run: |
+          cd backend/
+          ls -la
+          ls -l /bin/sh
+          sudo apt-get install -y bash
+          LISTENER=$(aws elbv2 describe-listeners --load-balancer-arn $(aws elbv2 describe-load-balancers --output json | jq -r '.LoadBalancers[] | select(.LoadBalancerArn | contains("fccards")) | .LoadBalancerArn') --region $AWS_DEFAULT_REGION --output json | jq -r '.Listeners[].ListenerArn')
+          bash -x ./automate_apply.sh -var="elb_listener_arn=$LISTENER"

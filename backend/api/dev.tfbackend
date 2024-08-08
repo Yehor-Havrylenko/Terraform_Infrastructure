@@ -1,0 +1,4 @@
+bucket = "{bucket-name}-terraform-states"
+key = "infrastructure/api-gateway.state"
+region = "eu-central-1"
+dynamodb_table = "mono-develop-terraform-lock"

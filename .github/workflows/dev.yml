@@ -1,0 +1,7 @@
+default:
+  tags:
+    - mono-main-runner-dedicated #runner name
+
+variables:
+  DEPLOYMENT_ROLE: {aws.deployment.role}
+  ENV_PREFIX: dev
