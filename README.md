@@ -102,5 +102,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **Future Enhancements:**
   - Plan to extend the backend to support different cloud providers or more complex setups, such as Kubernetes clusters or multi-region deployments.
-
-This README should provide a clear and comprehensive overview of your Terraform project for potential collaborators or reviewers visiting your GitHub repository. Let me know if you need further modifications or additional details!
